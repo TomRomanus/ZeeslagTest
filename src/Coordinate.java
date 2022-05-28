@@ -1,30 +1,25 @@
-public class Coordinate {
-    private final byte x;
-    private final byte y;
-    private boolean hit;
 
-    public Coordinate(byte x, byte y) {
+public class Coordinate {
+    private final int x;
+    private final int y;
+
+    public Coordinate(int x, int y) {
         this.x = x;
         this.y = y;
-        hit = false;
     }
 
-    public boolean Hit() {
-        if(!hit) {
-            hit = true;
-            return true;
-        } else return false;
-    }
-
-    public boolean isHit() {
-        return hit;
-    }
-
-    public byte getX() {
+    public int getX() {
         return x;
     }
 
-    public byte getY() {
+    public int getY() {
         return y;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this) return true;
+        if(!(obj instanceof Coordinate)) return false;
+        return ((Coordinate) obj).getX() == x && ((Coordinate) obj).getY() == y;
     }
 }

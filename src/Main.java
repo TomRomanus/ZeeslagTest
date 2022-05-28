@@ -1,41 +1,101 @@
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 public class Main {
-    private static Ship[] shipsPC;
-    private static Ship[] shipsPlayer;
-
-    static final byte NR_OF_SHIPS = 5;
-    static final byte BOARD_SIZE = 10;
-    static final byte MAX_TRIES = 100;
+    static final int BOARD_SIZE = 10;
 
     public static void main(String[] args) {
-        init();
-        printBoard();
+        Bot bot = new Bot(BOARD_SIZE);
+        Person person = new Person(BOARD_SIZE);
+        initialise(person, bot);
+        game();
     }
 
-    static void init() {
-        shipsPC = new Ship[NR_OF_SHIPS];
+    static void initialise(Person person, Bot bot) {
+        Scanner sc = new Scanner(System.in);
+        int x, y, size;
+        Integer[] sizes = {5, 4, 3, 3, 2};
+        String dir;
+        ArrayList<Coordinate> coordinates;
         ArrayList<Coordinate> invalidCoordinates = new ArrayList<>();
-        shipsPC[0] = addShip((byte) 5, invalidCoordinates);
-        for(int i=0; i<5; i++) invalidCoordinates.add(shipsPC[0].getCoordinates()[i]);
-        shipsPC[1] = addShip((byte) 4, invalidCoordinates);
-        for(int i=0; i<4; i++) invalidCoordinates.add(shipsPC[1].getCoordinates()[i]);
-        shipsPC[2] = addShip((byte) 3, invalidCoordinates);
-        for(int i=0; i<3; i++) invalidCoordinates.add(shipsPC[2].getCoordinates()[i]);
-        shipsPC[3] = addShip((byte) 3, invalidCoordinates);
-        for(int i=0; i<3; i++) invalidCoordinates.add(shipsPC[3].getCoordinates()[i]);
-        shipsPC[4] = addShip((byte) 2, invalidCoordinates);
-        for(int i=0; i<2; i++) invalidCoordinates.add(shipsPC[4].getCoordinates()[i]);
-        invalidCoordinates.forEach(c -> System.out.println("(" + c.getX() + ", " + c.getY() + ")"));
-        //shipsPlayer = new Ship[NR_OF_SHIPS];
+        printBoard(person.getShips(), true);
+
+        for(int i = 0; i < 5 ; i++) {
+            size = sizes[i];
+            do {
+                coordinates = null;
+                System.out.print("Please enter x coordinate of ship with size "+ size +": ");
+                try {
+                    x = sc.nextInt();
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input, please try again");
+                    sc.next();
+                    continue;
+                }
+                System.out.print("Please enter y coordinate of ship with size "+ size +": ");
+                try {
+                    y = sc.nextInt();
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input, please try again");
+                    sc.next();
+                    continue;
+                }
+                System.out.print("Enter U to go up, D to go down, L to go left, and R to go right: ");
+                dir = sc.next();
+                coordinates = processInitialInput(x, y, dir, size, invalidCoordinates);
+            } while (coordinates == null);
+            person.addShip(new Ship(coordinates));
+            invalidCoordinates.addAll(coordinates);
+            printBoard(person.getShips(), true);
+            bot.addShip(size);
+        }
+        printBoard(bot.getShips(), true);
     }
 
-    static void printBoard() {
-        for(byte y = BOARD_SIZE-1; y >= 0; y--) {
+    static ArrayList<Coordinate> processInitialInput(int x, int y, String direction, int size, ArrayList<Coordinate> invalidCoordinates) {
+        ArrayList<Coordinate> coordinates = new ArrayList<>();
+        int dx = 0, dy = 0;
+        String dir = direction.toLowerCase();
+        if((dir.equals("u") || dir.equals("d") || dir.equals("l") || dir.equals("r"))
+                && x < BOARD_SIZE && y < BOARD_SIZE && x >= 0 && y >= 0)
+        {
+            if(dir.equals("u")) dy = 1;
+            else if(dir.equals("d")) dy = -1;
+            else if(dir.equals("r")) dx = 1;
+            else dx = -1;
+
+            if((x + size * dx) >= BOARD_SIZE || (x + size * dx) < 0 || (y + size * dy) >= BOARD_SIZE || (y + size * dy) < 0) {
+                System.out.println("Invalid input, please try again");
+                return null;
+            }
+
+            Coordinate coordinate;
+            for(int i = 0; i < size; i++) {
+                coordinate = new Coordinate(x + i * dx, y + i * dy);
+                if(invalidCoordinates.contains(coordinate)) {
+                    System.out.println("Invalid input, please try again");
+                    return null;
+                }
+                else coordinates.add(coordinate);
+            }
+        }
+        else {
+            System.out.println("Invalid input, please try again");
+            return null;
+        }
+        return coordinates;
+    }
+
+    static void game() {
+        //TODO: Create the game logic
+    }
+
+    static void printBoard(ArrayList<Ship> ships, boolean showNotHit) {
+        for(int y = BOARD_SIZE-1; y >= 0; y--) {
             System.out.print(y + "| ");
-            for(byte x = 0; x < BOARD_SIZE; x++) {
-                System.out.print(getPrint(x, y) + " ");
+            for(int x = 0; x < BOARD_SIZE; x++) {
+                System.out.print(getPrint(x, y,ships, showNotHit) + " ");
             }
             System.out.println();
         }
@@ -43,99 +103,11 @@ public class Main {
         System.out.println("   0 1 2 3 4 5 6 7 8 9");
     }
 
-    static char getPrint(byte x, byte y) {
-        for(Ship ship : shipsPC) {
-            for(Coordinate coordinate : ship.getCoordinates()) {
-                if(coordinate.getX() == x && coordinate.getY() == y) {
-                    if(coordinate.isHit()) return 'X';
-                    else return 'x';
-                }
-            }
+    static char getPrint(int x, int y, ArrayList<Ship> ships, boolean showNotHit) {
+        for(Ship ship : ships) {
+            if(ship.isHit(x, y)) return 'X';
+            if(showNotHit && ship.isNotHit(x, y)) return 'x';
         }
         return ' ';
-    }
-
-    static boolean isValidCoordinate(byte x, byte y, ArrayList<Coordinate> invalidCoordinates) {
-        if(x < 0 || y < 0 || x >= BOARD_SIZE || y >= BOARD_SIZE) return false;
-        for(Coordinate coordinate : invalidCoordinates) {
-            if (coordinate.getX() == x && coordinate.getY() == y) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    static Ship addShip(byte size, ArrayList<Coordinate> invalidCoordinates) {
-        Random rand = new Random();
-        Coordinate[] coordinates = new Coordinate[size];
-        byte x = -1;
-        byte y = -1;
-        byte tries = 0;
-        boolean failed = true;
-        do {
-            for(int i = 0; i<= MAX_TRIES; i++) {
-                x = (byte) rand.nextInt(BOARD_SIZE);
-                y = (byte) rand.nextInt(BOARD_SIZE);
-                if(isValidCoordinate(x, y, invalidCoordinates)) {
-                    failed = false;
-                    break;
-                }
-            }
-            if(failed) System.exit(0);
-            Coordinate coordinate = new Coordinate(x, y);
-            coordinates[0] = coordinate;
-            if(rand.nextBoolean()) { // x or y axis
-                if(rand.nextBoolean()) { // up or down
-                    for(byte i = 1; i < size; i++) {
-                        x++;
-                        if(isValidCoordinate(x, y, invalidCoordinates)) {
-                            coordinate = new Coordinate(x, y);
-                            coordinates[i] = coordinate;
-                        } else {
-                            failed = true;
-                            break;
-                        }
-                    }
-                } else {
-                    for(byte i = 1; i < size; i++) {
-                        x--;
-                        if(isValidCoordinate(x, y, invalidCoordinates)) {
-                            coordinate = new Coordinate(x, y);
-                            coordinates[i] = coordinate;
-                        } else {
-                            failed = true;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                if(rand.nextBoolean()){ // up or down
-                    for(byte i = 1; i < size; i++) {
-                        y++;
-                        if(isValidCoordinate(x, y, invalidCoordinates)) {
-                            coordinate = new Coordinate(x, y);
-                            coordinates[i] = coordinate;
-                        } else {
-                            failed = true;
-                            break;
-                        }
-                    }
-                } else {
-                    for(byte i = 1; i < size; i++) {
-                        y--;
-                        if(isValidCoordinate(x, y, invalidCoordinates)) {
-                            coordinate = new Coordinate(x, y);
-                            coordinates[i] = coordinate;
-                        } else {
-                            failed = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            tries ++;
-        } while(failed && tries <= MAX_TRIES);
-        System.out.println("tries: " + tries);
-        return new Ship(coordinates);
     }
 }
