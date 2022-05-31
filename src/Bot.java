@@ -20,6 +20,11 @@ public class Bot {
         random = new Random();
     }
 
+    public boolean lost() {
+        for(Ship ship : ships) if(ship.isAlive()) return false;
+        return true;
+    }
+
     public ArrayList<Ship> getShips() {
         return ships;
     }
@@ -28,7 +33,11 @@ public class Bot {
         return allCoordinates;
     }
 
-    public Coordinate guess(ArrayList<Ship> enemyShips) {
+    public ArrayList<Coordinate> getBadGuesses() {
+        return badGuesses;
+    }
+
+    public Coordinate guess() {
         int x;
         int y;
         ArrayList<Coordinate> allGuesses = new ArrayList<>();
@@ -79,16 +88,12 @@ public class Bot {
         return null;
     }
 
-    public void addCoorectGuess(Coordinate coordinate) {
+    public void addCorrectGuess(Coordinate coordinate) {
         correctGuesses.add(coordinate);
     }
 
     public void addBadGuess(Coordinate coordinate) {
         badGuesses.add(coordinate);
-    }
-
-    public void printCoordinates() {
-        allCoordinates.forEach(c -> System.out.println("(" + c.getX() + ", " + c.getY() + ")"));
     }
 
     private boolean isValidCoordinate(int x, int y, List<Coordinate> invalidCoordinates) {
@@ -176,7 +181,10 @@ public class Bot {
         ships.add(ship);
     }
 
-    public boolean hit(int x, int y) {
-        return ships.stream().anyMatch(s -> s.hit(x, y));
+    public boolean hit(Coordinate guess) {
+        //TODO: rewrite this function
+        for(Ship ship : ships) if(ship.hit(guess)) return true;
+        return false;
+        //return ships.stream().anyMatch(s -> s.hit(guess));
     }
 }

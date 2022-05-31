@@ -22,19 +22,23 @@ public class Ship {
         return notHitCoordinates;
     }
 
-    private boolean isAlive() {
-        if(notHitCoordinates.size() == 0) {
-            System.out.println("Ship of size: " + size + "has sunk");
-            return false;
-        } else return true;
+    public boolean isAlive() {
+        return !notHitCoordinates.isEmpty();
     }
 
-    public boolean hit(int x, int y) {
+    public boolean hit(Coordinate guess) {
         for (Coordinate coordinate : notHitCoordinates) {
-            if (coordinate.getX() == x && coordinate.getY() == y) {
+            if (coordinate.equals(guess)) {
+                System.out.println("Hit at (" + coordinate.getX() + ", " + coordinate.getY() + ")");
                 hitCoordinates.add(coordinate);
+
+                System.out.println("The size of notHitCoordinates is: " + notHitCoordinates.size());
+
                 notHitCoordinates.remove(coordinate);
-                isAlive();
+
+                System.out.println("The size of notHitCoordinates is: " + notHitCoordinates.size());
+
+                System.out.println("Total number of hits: " + hitCoordinates.size());
                 return true;
             }
         }

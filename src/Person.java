@@ -27,16 +27,21 @@ public class Person {
         return true;
     }
 
-    public void addCoorectGuess(int x, int y) {
-        correctGuesses.add(new Coordinate(x, y));
+    public boolean lost() {
+        for(Ship ship : ships) if(ship.isAlive()) return false;
+        return true;
+    }
+
+    public void addCorrectGuess(Coordinate guess) {
+        correctGuesses.add(guess);
     }
 
     public ArrayList<Coordinate> getCorrectGuesses() {
         return correctGuesses;
     }
 
-    public void addBadGuess(int x, int y) {
-        badGuesses.add(new Coordinate(x, y));
+    public void addBadGuess(Coordinate guess) {
+        badGuesses.add(guess);
     }
 
     public ArrayList<Coordinate> getBadGuesses() {
@@ -44,13 +49,15 @@ public class Person {
     }
 
     public boolean isValidGuess(int x, int y) {
-        if(x> board_size || y > board_size) return false;
+        if(x> board_size || y > board_size || x < 0 || y < 0) return false;
         Coordinate coordinate = new Coordinate(x, y);
         if(correctGuesses.contains(coordinate) || badGuesses.contains(coordinate)) return false;
         return true;
     }
 
-    public boolean hit(int x, int y) {
-        return ships.stream().anyMatch(s -> s.hit(x, y));
+    public boolean hit(Coordinate guess) {
+        for(Ship ship : ships) if(ship.hit(guess)) return true;
+        return false;
+        //return ships.stream().anyMatch(s -> s.hit(guess));
     }
 }
