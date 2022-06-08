@@ -29,8 +29,15 @@ public class Bot {
         return ships;
     }
 
-    public ArrayList<Coordinate> getCoordinates() {
-        return allCoordinates;
+    public void clearAll() {
+        ships.clear();
+        allCoordinates.clear();
+        correctGuesses.clear();
+        badGuesses.clear();
+    }
+
+    public ArrayList<Coordinate> getCorrectGuesses() {
+        return correctGuesses;
     }
 
     public ArrayList<Coordinate> getBadGuesses() {
@@ -38,15 +45,14 @@ public class Bot {
     }
 
     public Coordinate guess() {
-        int x;
-        int y;
+        int x, y, dX, dY;
         ArrayList<Coordinate> allGuesses = new ArrayList<>();
         allGuesses.addAll(correctGuesses);
         allGuesses.addAll(badGuesses);
 
         if(correctGuesses.size() >= 2) {
-            int dX = correctGuesses.get(correctGuesses.size() - 2).getX() - correctGuesses.get(correctGuesses.size() - 1).getX();
-            int dY = correctGuesses.get(correctGuesses.size() - 2).getY() - correctGuesses.get(correctGuesses.size() - 1).getY();
+            dX = correctGuesses.get(correctGuesses.size() - 1).getX() - correctGuesses.get(correctGuesses.size() - 2).getX();
+            dY = correctGuesses.get(correctGuesses.size() - 1).getY() - correctGuesses.get(correctGuesses.size() - 2).getY();
             if(dX >= -1 && dX <= 1 && dY >= -1 && dY <= 1) {
                 x = correctGuesses.get(correctGuesses.size()-1).getX() + dX;
                 y = correctGuesses.get(correctGuesses.size()-1).getY() + dY;
@@ -60,11 +66,26 @@ public class Bot {
                 }
                 if(isValidCoordinate(x, y, allGuesses)) return new Coordinate(x, y);
             }
+            else {
+                x = correctGuesses.get(correctGuesses.size() - 1).getX();
+                y = correctGuesses.get(correctGuesses.size() - 1).getY();
+                if(Math.abs(dX) > 1 && dY == 0 && Math.abs(dX) + 1 < correctGuesses.size())
+                    dX = x - correctGuesses.get(correctGuesses.size() - 1 - Math.abs(dX)).getX();
+                if(Math.abs(dY) > 1 && dX == 0 && Math.abs(dY) + 1 < correctGuesses.size())
+                    dY = y - correctGuesses.get(correctGuesses.size() - 1 - Math.abs(dY)).getY();
+                if(isValidCoordinate(x + dX, y + dY, allGuesses)) return new Coordinate(x + dX, y + dY);
+                else{
+                    if (isValidCoordinate(x + 1, y, allGuesses)) return new Coordinate(x + 1, y);
+                    if (isValidCoordinate(x - 1, y, allGuesses)) return new Coordinate(x - 1, y);
+                    if (isValidCoordinate(x, y + 1, allGuesses)) return new Coordinate(x, y + 1);
+                    if (isValidCoordinate(x, y - 1, allGuesses)) return new Coordinate(x, y - 1);
+                }
+            }
         }
 
-        if(correctGuesses.size() >= 1) {
-            x = correctGuesses.get(correctGuesses.size()-1).getX();
-            y = correctGuesses.get(correctGuesses.size()-1).getY();
+        if(correctGuesses.size() == 1) {
+            x = correctGuesses.get(0).getX();
+            y = correctGuesses.get(0).getY();
             if(isValidCoordinate(x+1, y, allGuesses)) return new Coordinate(x+1, y);
             if(isValidCoordinate(x-1, y, allGuesses)) return new Coordinate(x-1, y);
             if(isValidCoordinate(x, y+1, allGuesses)) return new Coordinate(x, y+1);
@@ -121,7 +142,10 @@ public class Bot {
                     break;
                 }
             }
-            if(failed) System.exit(0);
+            if(failed) {
+                System.out.println("Could not add a new ship, exiting program...");
+                System.exit(-1);
+            }
             shipCoordinates[0] = new Coordinate(x, y);
             if(random.nextBoolean()) { // x or y axis
                 if(random.nextBoolean()) { // up or down
@@ -174,7 +198,6 @@ public class Bot {
             System.out.println("Could not add a new ship, exiting program...");
             System.exit(-1);
         }
-        System.out.println("tries: " + tries);
         ArrayList<Coordinate> coordinates = new ArrayList<>(Arrays.asList(shipCoordinates));
         allCoordinates.addAll(coordinates);
         Ship ship = new Ship(coordinates);
@@ -182,9 +205,6 @@ public class Bot {
     }
 
     public boolean hit(Coordinate guess) {
-        //TODO: rewrite this function
-        for(Ship ship : ships) if(ship.hit(guess)) return true;
-        return false;
-        //return ships.stream().anyMatch(s -> s.hit(guess));
+        return ships.stream().anyMatch(s -> s.hit(guess));
     }
 }

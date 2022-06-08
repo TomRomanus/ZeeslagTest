@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 public class Person {
+    private String name;
     private final ArrayList<Ship> ships;
     private final ArrayList<Coordinate> correctGuesses;
     private final ArrayList<Coordinate> badGuesses;
@@ -25,6 +26,14 @@ public class Person {
             return false;
         ships.add(ship);
         return true;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean lost() {

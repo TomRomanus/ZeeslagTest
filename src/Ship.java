@@ -29,16 +29,9 @@ public class Ship {
     public boolean hit(Coordinate guess) {
         for (Coordinate coordinate : notHitCoordinates) {
             if (coordinate.equals(guess)) {
-                System.out.println("Hit at (" + coordinate.getX() + ", " + coordinate.getY() + ")");
+                //System.out.println("Hit at (" + coordinate.getX() + ", " + coordinate.getY() + ")");
                 hitCoordinates.add(coordinate);
-
-                System.out.println("The size of notHitCoordinates is: " + notHitCoordinates.size());
-
                 notHitCoordinates.remove(coordinate);
-
-                System.out.println("The size of notHitCoordinates is: " + notHitCoordinates.size());
-
-                System.out.println("Total number of hits: " + hitCoordinates.size());
                 return true;
             }
         }

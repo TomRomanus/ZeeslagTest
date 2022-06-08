@@ -68,7 +68,7 @@ public class PersonVsBotCmd {
             else if(dir.equals("r")) dx = 1;
             else dx = -1;
 
-            if((x + size * dx) >= boardSize || (x + size * dx) < 0 || (y + size * dy) >= boardSize || (y + size * dy) < 0) {
+            if((x + (size-1) * dx) >= boardSize || (x + (size-1) * dx) < 0 || (y + (size-1) * dy) >= boardSize || (y + (size-1) * dy) < 0) {
                 System.out.println("Invalid input, please try again");
                 return null;
             }
@@ -180,7 +180,7 @@ public class PersonVsBotCmd {
         if(ships != null) {
             for (Ship ship : ships) {
                 if (ship.isHit(x, y)) return 'X';
-                if (showNotHit && ship.isNotHit(x, y)) return 'x';
+                if (showNotHit && ship.isNotHit(x, y)) return '#';
             }
         }
         if(correctGuesses != null && correctGuesses.contains(new Coordinate(x, y))) return 'X';
