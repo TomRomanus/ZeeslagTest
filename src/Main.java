@@ -6,7 +6,7 @@ public class Main {
 
     public static void main(String[] args) {
         new PersonVsBotCmd(BOARD_SIZE);
-        //botVsBot();
+        botVsBot();
     }
 
     static void botVsBot() {

@@ -67,6 +67,5 @@ public class Person {
     public boolean hit(Coordinate guess) {
         for(Ship ship : ships) if(ship.hit(guess)) return true;
         return false;
-        //return ships.stream().anyMatch(s -> s.hit(guess));
     }
 }

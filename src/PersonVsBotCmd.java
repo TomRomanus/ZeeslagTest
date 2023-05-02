@@ -102,6 +102,7 @@ public class PersonVsBotCmd {
         Scanner scanner = new Scanner(System.in);
         int x, y;
         Coordinate guess;
+        int turn = 0;
 
         if(random.nextBoolean()) // let the player start or let the bot start
         {
@@ -119,6 +120,7 @@ public class PersonVsBotCmd {
         }
         while(!bot.lost() && !person.lost())
         {
+            System.out.println("Turn: " + turn++);
             // Players turn
             System.out.println("----- opponents board -----");
             printBoard(null, false, person.getCorrectGuesses(), person.getBadGuesses());
@@ -158,7 +160,11 @@ public class PersonVsBotCmd {
             System.out.println("----- own board -----");
             printBoard(person.getShips(), true, null, bot.getBadGuesses());
         }
-        if(person.lost()) System.out.println("You lost, better luck next time!");
+        if(person.lost()){
+            System.out.println("You lost, better luck next time!\n");
+            System.out.println("Other players board:");
+            printBoard(bot.getShips(), true, null, person.getBadGuesses());
+        }
         else System.out.println("Good job! You have won!!!");
     }
 

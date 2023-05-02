@@ -3,12 +3,10 @@ import java.util.ArrayList;
 public class Ship {
     private final ArrayList<Coordinate> notHitCoordinates;
     private final ArrayList<Coordinate> hitCoordinates;
-    private final int size;
 
     public Ship(ArrayList<Coordinate> coordinates) {
         this.notHitCoordinates = coordinates;
         hitCoordinates = new ArrayList<>();
-        size = coordinates.size();
     }
 
     public ArrayList<Coordinate> getAllCoordinates() {
@@ -29,7 +27,6 @@ public class Ship {
     public boolean hit(Coordinate guess) {
         for (Coordinate coordinate : notHitCoordinates) {
             if (coordinate.equals(guess)) {
-                //System.out.println("Hit at (" + coordinate.getX() + ", " + coordinate.getY() + ")");
                 hitCoordinates.add(coordinate);
                 notHitCoordinates.remove(coordinate);
                 return true;
